@@ -5,6 +5,10 @@ const PromptSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
     },
+    image: {
+        type: Schema.Types.String,
+        ref: 'User',
+    },
     prompt: {
         type: String,
         require: [true, 'Prompt is required'],

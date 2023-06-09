@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image/";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -32,17 +32,13 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
           className='flex-1 flex justify-start items-center gap-3 cursor-pointer'
           onClick={handleProfileClick}
         >
-          {/* <Image
-           src={
-            post.creator.image
-                ? post.creator.image
-                : "/assets/icons/link.svg"
-        }
+          <Image
+           src={post.creator.image}
             alt='user_image'
             width={40}
             height={40}
             className='rounded-full object-contain'
-          /> */}
+          />
 
           <div className='flex flex-col'>
             <h3 className='font-satoshi font-semibold text-gray-900'>
