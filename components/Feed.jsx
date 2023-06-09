@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PromptCard from "./PromptCard";
 
 const PromptCardList = ({ data, handleTagClick }) => {
@@ -25,22 +25,35 @@ const Feed = () => {
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const fetchPosts = async () => {
-    const response = await fetch("/api/prompt", {
-      method: "GET",
-      headers: {
-        "Cache-Control": "no-store"
+  const fetchPosts = useCallback(async () => {
+    try {
+      const response = await fetch("/api/prompt", {
+        method: "GET",
+        headers: { "Cache-Control": "no-store" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
       }
-    });
-    const data = await response.json();
 
-    setAllPosts(data);
-  };
-
+      const data = await response.json();
+      setAllPosts(data);
+      setLoading(false);
+      setError(null);
+    } catch (error) {
+      setError("Failed to fetch data");
+      setLoading(false);
+    }
+  }, []);
   useEffect(() => {
     fetchPosts();
-  }, []);
+
+    const interval = setInterval(fetchPosts, 5000); // Fetch posts every 5 seconds
+    return () => clearInterval(interval); // Clean up the interval on component unmount
+  }, [fetchPosts]);
 
   const filterPrompts = (searchtext) => {
     const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
