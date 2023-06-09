@@ -1,17 +1,15 @@
 "use client";
-
 import { useState, useEffect, useCallback } from "react";
 import PromptCard from "./PromptCard";
 
 const PromptCardList = ({ data, handleTagClick }) => {
   return (
-    <div className='mt-16 prompt_layout'>
+    <div className="mt-16 prompt_layout">
       {data.map((post) => (
         <PromptCard
           key={post._id}
           post={post}
           handleTagClick={handleTagClick}
-          
         />
       ))}
     </div>
@@ -20,10 +18,7 @@ const PromptCardList = ({ data, handleTagClick }) => {
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
-
-  // Search states
   const [searchText, setSearchText] = useState("");
-  const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,6 +43,7 @@ const Feed = () => {
       setLoading(false);
     }
   }, []);
+
   useEffect(() => {
     fetchPosts();
 
@@ -55,8 +51,8 @@ const Feed = () => {
     return () => clearInterval(interval); // Clean up the interval on component unmount
   }, [fetchPosts]);
 
-  const filterPrompts = (searchtext) => {
-    const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
+  const filterPrompts = (searchText) => {
+    const regex = new RegExp(searchText, "i");
     return allPosts.filter(
       (item) =>
         regex.test(item.creator.username) ||
@@ -66,16 +62,10 @@ const Feed = () => {
   };
 
   const handleSearchChange = (e) => {
-    clearTimeout(searchTimeout);
     setSearchText(e.target.value);
 
-    // debounce method
-    setSearchTimeout(
-      setTimeout(() => {
-        const searchResult = filterPrompts(e.target.value);
-        setSearchedResults(searchResult);
-      }, 500)
-    );
+    const searchResult = filterPrompts(e.target.value);
+    setSearchedResults(searchResult);
   };
 
   const handleTagClick = (tagName) => {
@@ -85,16 +75,24 @@ const Feed = () => {
     setSearchedResults(searchResult);
   };
 
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
+
   return (
-    <section className='feed'>
-      <form className='relative w-full flex-center'>
+    <section className="feed">
+      <form className="relative w-full flex-center">
         <input
-          type='text'
-          placeholder='Search for a tag or a username'
+          type="text"
+          placeholder="Search for a tag or a username"
           value={searchText}
           onChange={handleSearchChange}
           required
-          className='search_input peer'
+          className="search_input peer"
         />
       </form>
 
