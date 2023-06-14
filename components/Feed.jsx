@@ -1,10 +1,12 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+
+import { useState, useEffect } from "react";
+
 import PromptCard from "./PromptCard";
 
 const PromptCardList = ({ data, handleTagClick }) => {
   return (
-    <div className="mt-16 prompt_layout">
+    <div className='mt-16 prompt_layout'>
       {data.map((post) => (
         <PromptCard
           key={post._id}
@@ -18,41 +20,25 @@ const PromptCardList = ({ data, handleTagClick }) => {
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
+
+  // Search states
   const [searchText, setSearchText] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  const fetchPosts = useCallback(async () => {
-    try {
-      const response = await fetch("/api/prompt", {
-        method: "GET",
-        headers: { "Cache-Control": "no-store" },
-      });
+  const fetchPosts = async () => {
+    const response = await fetch("/api/prompt");
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
-
-      const data = await response.json();
-      setAllPosts(data);
-      setLoading(false);
-      setError(null);
-    } catch (error) {
-      setError("Failed to fetch data");
-      setLoading(false);
-    }
-  }, []);
+    setAllPosts(data);
+  };
 
   useEffect(() => {
     fetchPosts();
+  }, []);
 
-    const interval = setInterval(fetchPosts, 5000); // Fetch posts every 5 seconds
-    return () => clearInterval(interval); // Clean up the interval on component unmount
-  }, [fetchPosts]);
-
-  const filterPrompts = (searchText) => {
-    const regex = new RegExp(searchText, "i");
+  const filterPrompts = (searchtext) => {
+    const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
     return allPosts.filter(
       (item) =>
         regex.test(item.creator.username) ||
@@ -62,10 +48,16 @@ const Feed = () => {
   };
 
   const handleSearchChange = (e) => {
+    clearTimeout(searchTimeout);
     setSearchText(e.target.value);
 
-    const searchResult = filterPrompts(e.target.value);
-    setSearchedResults(searchResult);
+    // debounce method
+    setSearchTimeout(
+      setTimeout(() => {
+        const searchResult = filterPrompts(e.target.value);
+        setSearchedResults(searchResult);
+      }, 500)
+    );
   };
 
   const handleTagClick = (tagName) => {
@@ -75,24 +67,16 @@ const Feed = () => {
     setSearchedResults(searchResult);
   };
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
-
   return (
-    <section className="feed">
-      <form className="relative w-full flex-center">
+    <section className='feed'>
+      <form className='relative w-full flex-center'>
         <input
-          type="text"
-          placeholder="Search for a tag or a username"
+          type='text'
+          placeholder='Search for a tag or a username'
           value={searchText}
           onChange={handleSearchChange}
           required
-          className="search_input peer"
+          className='search_input peer'
         />
       </form>
 
